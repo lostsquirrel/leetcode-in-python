@@ -8,7 +8,6 @@ class Solution:
         matrix = self.init_matrix(n)
         value = 1
         directions = ((0, 1), (1, 0), (0, -1), (-1, 0))
-        direction_rank = 0
         max_value = n * n
 
         class Point:
@@ -23,6 +22,9 @@ class Solution:
                 self.bottom = bottom
                 self.left = left
 
+            def __str__(self):
+                return "({}, {},{},{})".format(self.top, self.right, self.bottom, self.left)
+
         class Walker:
             def __init__(self):
                 self.position = Point(0, 0)
@@ -30,8 +32,11 @@ class Solution:
                 self.boundary = Boundary(0, n - 1, n - 1, 0)
 
             def walk(self):
+
+                logging.debug("{} {} {}".format(self.position.x, self.position.y, value))
+                matrix[self.position.x][self.position.y] = value
+
                 if self.reach_boundary():
-                    self.direction_rank = (self.direction_rank + 1) % len(directions)
                     if self.direction_rank == 0:
                         self.boundary.top += 1
                     if self.direction_rank == 1:
@@ -40,9 +45,11 @@ class Solution:
                         self.boundary.bottom -= 1
                     if self.direction_rank == 3:
                         self.boundary.left += 1
+                    self.direction_rank += 1
+                    self.direction_rank = self.direction_rank % len(directions)
+                    logging.debug("change direction {} {}".format(self.direction_rank, self.boundary))
+
                 direction = self.get_direction()
-                logging.debug("{} {}".format(self.position.x, self.position.y))
-                matrix[self.position.x][self.position.y] = value
                 self.position.x += direction[0]
                 self.position.y += direction[1]
 
@@ -80,6 +87,9 @@ class Test(unittest.TestCase):
 
     def test_case02(self):
         self.validate(1, [[1]])
+
+    def test_case03(self):
+        self.validate(4, [[1, 2, 3, 4], [12, 13, 14, 5], [11, 16, 15, 6], [10, 9, 8, 7]])
 
     def test_init(self):
         matrix = Solution.init_matrix(3)
